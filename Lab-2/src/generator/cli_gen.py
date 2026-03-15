@@ -6,13 +6,47 @@ from faker import Faker
 
 fake = Faker()
 
-def generate_google_play_data(output_path, num_rows):
-    """Генерує випадкові дані для Google Play Store на основі діаграми класів."""
+def generate_realistic_app_info(category):
+    """Генерує реалістичну назву та опис залежно від категорії."""
+    prefixes = {
+        "Games": ["Epic", "Legend of", "Shadow", "Extreme", "Pixel", "Space", "Candy", "Angry", "Mega"],
+        "Productivity": ["Smart", "Focus", "Easy", "Quick", "Pro", "Ultra", "Simple", "Cloud", "Daily"],
+        "Finance": ["Safe", "Wallet", "Penny", "Gold", "Crypto", "Budget", "Tax", "Money", "Pocket"],
+        "Social": ["Chat", "Connect", "Live", "Circle", "Link", "Vibe", "Talk", "Snap", "Friends"],
+        "Education": ["Learn", "Academy", "Master", "Skill", "Quiz", "Brain", "Word", "Study", "Lingua"],
+        "Tools": ["Turbo", "Cleaner", "Secure", "Master", "Fix", "Power", "Scan", "Guard", "Battery"]
+    }
     
+    suffixes = {
+        "Games": ["Quest", "Saga", "Run", "Battle", "World", "Arena", "Hero", "Clicker", "Empire"],
+        "Productivity": ["Task", "Editor", "Notes", "Planner", "Manager", "Do", "Organizer", "Flow"],
+        "Finance": ["Pay", "Track", "Finance", "Vault", "Saver", "Invest", "Coin", "Bank", "Cash"],
+        "Social": ["Messenger", "Network", "Social", "Stream", "Me", "Post", "Gram", "Hub", "Space"],
+        "Education": ["Guide", "Language", "Tutor", "Course", "Lab", "Helper", "Study", "Cards"],
+        "Tools": ["Utility", "Guard", "Tool", "Helper", "Boost", "App", "Expert", "Scanner", "Pro"]
+    }
+
+    cat_pref = random.choice(prefixes.get(category, ["My"]))
+    cat_suff = random.choice(suffixes.get(category, ["App"]))
+    
+    formats = [
+        f"{cat_pref} {fake.first_name()}", 
+        f"{fake.last_name()} {cat_suff}",  
+        f"{cat_pref} {cat_suff}",          
+        f"{fake.color_name().capitalize()} {cat_suff}", 
+        f"{cat_pref} {fake.word().capitalize()}"        
+    ]
+    title = random.choice(formats)
+    
+    description = f"Welcome to {title}! This is the ultimate {category} solution. {fake.paragraph(nb_sentences=2)}"
+    
+    return title, description
+
+def generate_google_play_data(output_path, num_rows):
     categories = ["Games", "Productivity", "Finance", "Social", "Education", "Tools"]
     
     fieldnames = [
-        'app_id', 'title', 'category', 'current_version', 'avg_rating', 
+        'app_id', 'title', 'description', 'category', 'current_version', 'avg_rating', 
         'is_free', 'price', 'currency', 'contains_ads',
         'dev_id', 'dev_name', 'dev_email', 'company_name', 'dev_key',
         'version_tag', 'release_notes', 'upload_date',
@@ -26,14 +60,18 @@ def generate_google_play_data(output_path, num_rows):
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
 
-            for i in range(num_rows):
+            for _ in range(num_rows):
+                category = random.choice(categories)
+                title, description = generate_realistic_app_info(category)
+                
                 is_free = random.choice([True, False])
                 price = 0.0 if is_free else round(random.uniform(0.99, 49.99), 2)
                 
                 writer.writerow({
                     'app_id': fake.uuid4(),
-                    'title': fake.catch_phrase(),
-                    'category': random.choice(categories),
+                    'title': title,
+                    'description': description, 
+                    'category': category,
                     'current_version': f"{random.randint(1, 12)}.{random.randint(0, 9)}",
                     'avg_rating': round(random.uniform(1.0, 5.0), 1),
                     'is_free': is_free,
@@ -56,33 +94,14 @@ def generate_google_play_data(output_path, num_rows):
                     'review_stars': random.randint(1, 5)
                 })
         
-        print(f"✅ Успішно згенеровано {num_rows} рядків у файл: {output_path}")
+        print(f"✅ Успішно згенеровано {num_rows} рядків у: {output_path}")
 
     except Exception as e:
-        print(f"❌ Помилка під час генерації: {e}")
-
-def main():
-    parser = argparse.ArgumentParser(description="Генератор даних для Google Play Store Lab.")
-    parser.add_argument(
-        '--count', 
-        type=int, 
-        default=1000, 
-        help="Кількість рядків для генерації (мінімум 1000 за ТЗ)."
-    )
-    parser.add_argument(
-        '--output', 
-        type=str, 
-        default='Lab-2/data/google_play_data.csv', 
-        help="Шлях до вихідного CSV файлу."
-    )
-
-    args = parser.parse_args()
-
-    if args.count < 1000:
-        print("⚠️ Увага: Завдання вимагає мінімум 1000 рядків. Встановлюю 1000.")
-        args.count = 1000
-
-    generate_google_play_data(args.output, args.count)
+        print(f"❌ Помилка: {e}")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--count', type=int, default=1000)
+    parser.add_argument('--output', type=str, default='data/google_play_data.csv')
+    args = parser.parse_args()
+    generate_google_play_data(args.output, args.count)

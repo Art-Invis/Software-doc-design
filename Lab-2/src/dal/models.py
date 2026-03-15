@@ -88,7 +88,8 @@ class Application(Base):
     average_rating = Column(Float, default=0.0)
     current_version = Column(String)
     app_type = Column(String(20))
-
+    description = Column(String, nullable=True)
+    
     developer_id = Column(Integer, ForeignKey('developers.user_id'))
     category_id = Column(Integer, ForeignKey('categories.category_id'))
 
