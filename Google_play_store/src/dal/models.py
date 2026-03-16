@@ -12,7 +12,7 @@ class User(Base):
     user_id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    user_type = Column(String(20))
+    user_type = Column(String(20)) 
 
     __mapper_args__ = {
         'polymorphic_identity': 'user',
@@ -89,7 +89,7 @@ class Application(Base):
     current_version = Column(String)
     app_type = Column(String(20))
     description = Column(String, nullable=True)
-    
+
     developer_id = Column(Integer, ForeignKey('developers.user_id'))
     category_id = Column(Integer, ForeignKey('categories.category_id'))
 
