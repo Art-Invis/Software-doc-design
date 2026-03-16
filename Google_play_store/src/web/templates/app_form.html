@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white p-4 border-0">
+                <div class="d-flex align-items-center">
+                    <span class="fs-2 me-3">{{ "📝" if app else "🚀" }}</span>
+                    <div>
+                        <h2 class="mb-0 fw-bold">{{ "Редагувати" if app else "Додати новий" }} додаток</h2>
+                        <p class="mb-0 opacity-75">Заповніть дані для публікації в Play Store</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-5 bg-white">
+                <form method="POST">
+                    
+                    <div class="mb-5">
+                        <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">📂 Загальна інформація</h5>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-600">Назва додатка</label>
+                                <input type="text" name="title" class="form-control form-control-lg bg-light border-0" 
+                                       placeholder="Наприклад: Candy Saga" value="{{ app.title if app else '' }}" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-600">Короткий опис</label>
+                                <textarea name="description" class="form-control bg-light border-0" rows="4" 
+                                          placeholder="Опишіть основні функції вашого продукту...">{{ app.description if app else '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">🏷️ Категоризація та авторство</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-600">Категорія</label>
+                                <select name="category_id" class="form-select bg-light border-0">
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.category_id }}" {{ 'selected' if app and app.category_id == cat.category_id else '' }}>
+                                        {{ cat.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-600">Розробник</label>
+                                <select name="developer_id" class="form-select bg-light border-0">
+                                    {% for dev in developers %}
+                                    <option value="{{ dev.user_id }}" {{ 'selected' if app and app.developer_id == dev.user_id else '' }}>
+                                        {{ dev.company_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <h5 class="text-primary fw-bold mb-4 border-bottom pb-2">💰 Монетизація</h5>
+                        <div class="row align-items-end">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-600">Тип доступу</label>
+                                <select name="is_free" id="typeSelect" class="form-select bg-light border-0">
+                                    <option value="true" {{ 'selected' if app and not app.price else '' }}>Безкоштовний</option>
+                                    <option value="false" {{ 'selected' if app and app.price else '' }}>Платний</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 {{ 'd-block' if app and app.price else 'd-none' }}" id="priceContainer">
+                                <label class="form-label fw-600">Ціна ($)</label>
+                                <input type="number" step="0.01" name="price" class="form-control bg-light border-0" 
+                                    value="{{ app.price if app and app.price else '0.00' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 pt-4 border-top">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold">
+                            {{ "Зберегти зміни" if app else "Опублікувати додаток" }}
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">Скасувати</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('typeSelect').addEventListener('change', function() {
+        const priceContainer = document.getElementById('priceContainer');
+        priceContainer.style.display = this.value === 'false' ? 'block' : 'none';
+    });
+</script>
+{% endblock %}

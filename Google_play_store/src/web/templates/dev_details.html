@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-primary text-white d-inline-block p-4 mb-3" style="width: 80px; height: 80px;">
+                    <h2 class="mb-0">{{ dev.company_name[0] }}</h2>
+                </div>
+                <h3 class="fw-bold">{{ dev.company_name }}</h3>
+                <p class="text-muted">ID Розробника: #{{ dev.dev_key }}</p>
+                <hr>
+                <div class="text-start">
+                    <p><strong>📧 Email:</strong> {{ dev.email }}</p>
+                    <p><strong>📦 К-сть продуктів:</strong> {{ dev.applications|length }}</p>
+                </div>
+                <button class="btn btn-outline-primary w-100 mt-3">Написати листа</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Портфоліо додатків</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Назва</th>
+                            <th>Категорія</th>
+                            <th>Рейтинг</th>
+                            <th class="text-end pe-4">Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in dev.applications %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ app.title }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ app.category.name }}</span></td>
+                            <td>⭐ {{ app.average_rating }}</td>
+                            <td class="text-end pe-4">
+                                <a href="/app/{{ app.app_id }}" class="btn btn-sm btn-link">Переглянути</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
