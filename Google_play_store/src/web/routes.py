@@ -53,6 +53,9 @@ def edit_app(app_id):
             'price': request.form.get('price', 0)
         }
         service.update_application(app_id, new_data)
+
+        flash(f"Зміни в '{new_data['title']}' збережено!", "info")
+
         return redirect(url_for('index'))
     
     return render_template('app_form.html', 
@@ -130,6 +133,9 @@ def create():
             'price': request.form.get('price', 0)
         }
         service.create_application(data)
+
+        flash(f"Додаток '{data['title']}' успішно створено!", "success")
+
         return redirect(url_for('index', role=role))
     
     return render_template('app_form.html', 
@@ -140,6 +146,9 @@ def create():
 def delete(app_id):
     role = request.args.get('role', 'admin')
     service.delete_application(app_id)
+
+    flash("Додаток було видалено із системи.", "warning") 
+
     return redirect(url_for('index', role=role))
 
 @app.route('/user/create', methods=['GET', 'POST'])
