@@ -234,7 +234,20 @@ class GooglePlayService:
             )
             self._repository.save_entities([new_review])
 
+    def get_user_by_email(self, email: str):
+        """Шукає користувача за email."""
+        customers = self._repository.get_all_customers()
+        developers = self._repository.get_all_developers()
+        
+        for u in customers + developers:
+            if u.email.lower() == email.lower():
+                return u
+        return None
+
     def create_developer(self, data):
+        if self.get_user_by_email(data['email']):
+            return False, "Користувач з таким Email вже існує!"
+        
         new_dev = Developer(
             email=data['email'],
             password=data['password'],
@@ -243,8 +256,12 @@ class GooglePlayService:
             user_type="developer"
         )
         self._repository.save_entities([new_dev])
+        return True, "Розробника успішно створено."
 
     def create_customer(self, data):
+        if self.get_user_by_email(data['email']):
+            return False, "Користувач з таким Email вже існує!"
+        
         new_cust = Customer(
             email=data['email'],
             password=data['password'],
@@ -253,3 +270,4 @@ class GooglePlayService:
             user_type="customer"
         )
         self._repository.save_entities([new_cust])
+        return True, "Клієнта успішно створено."

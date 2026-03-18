@@ -1,7 +1,4 @@
-from flask import render_template, request, redirect, url_for
-from app import app, service
-
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from app import app, service
 import uuid
 @app.route('/')
@@ -150,24 +147,30 @@ def create_user():
     role = request.args.get('role', 'admin')
     
     if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
         if role == 'customer':
             data = {
-                'email': request.form['email'],
-                'password': request.form['password'],
-                'payment_method': request.form['payment_method'],
-                'user_type': 'customer'
+                'email': email,
+                'password': password,
+                'payment_method': request.form['payment_method']
             }
-            service.create_customer(data)
-            return redirect(url_for('index', role='customer'))
+            success, message = service.create_customer(data)
         else:
             data = {
-                'email': request.form['email'],
-                'password': request.form['password'],
+                'email': email,
+                'password': password,
                 'company_name': request.form['company_name'],
-                'dev_key': request.form.get('dev_key') or str(uuid.uuid4())[:12],
-                'user_type': 'developer'
+                'dev_key': request.form.get('dev_key') or str(uuid.uuid4())[:12]
             }
-            service.create_developer(data)
-            return redirect(url_for('list_developers', role='admin'))
+            success, message = service.create_developer(data)
+
+        if success:
+            flash(message, "success")
+            return redirect(url_for('list_developers' if role != 'customer' else 'index'))
+        else:
+            flash(message, "danger")
+            return render_template('user_form.html', role=role)
             
-    return render_template('user_form.html')
+    return render_template('user_form.html', role=role)
