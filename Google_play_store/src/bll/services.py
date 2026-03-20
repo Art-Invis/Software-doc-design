@@ -271,3 +271,10 @@ class GooglePlayService:
         )
         self._repository.save_entities([new_cust])
         return True, "Клієнта успішно створено."
+    
+    def authenticate_user(self, email, password):
+        """Перевіряє облікові дані користувача."""
+        user = self.get_user_by_email(email)
+        if user and user.password == password:
+            return user
+        return None

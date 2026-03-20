@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, session 
 from app import app, service
 import uuid
 @app.route('/')
@@ -176,10 +176,36 @@ def create_user():
             success, message = service.create_developer(data)
 
         if success:
-            flash(message, "success")
-            return redirect(url_for('list_developers' if role != 'customer' else 'index'))
+            flash(message + " Тепер увійдіть у свій акаунт.", "success")
+            return redirect(url_for('login'))
         else:
             flash(message, "danger")
             return render_template('user_form.html', role=role)
             
     return render_template('user_form.html', role=role)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = service.authenticate_user(email, password)
+        
+        if user:
+            session['user_id'] = user.user_id
+            session['user_role'] = user.user_type
+            session['user_email'] = user.email
+            
+            flash(f"Вітаємо, {user.email}!", "success")
+            return redirect(url_for('index', role=user.user_type))
+        else:
+            flash("Невірний email або пароль!", "danger")
+            
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear() 
+    flash("Ви вийшли із системи", "info")
+    return redirect(url_for('login'))
