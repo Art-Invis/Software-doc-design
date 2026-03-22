@@ -1,0 +1,15 @@
+{
+    "data_path": "data/nypd_data.csv",
+    "export_mode": "file",
+    "kafka_settings": {
+        "bootstrap_servers": "localhost:9092",
+        "topic": "nypd_incidents"
+    },
+    "redis_settings": {
+        "host": "localhost",
+        "port": 6379
+    },
+    "file_settings": {
+        "output_file": "data/export_nypd.json"
+    }
+}
