@@ -5,9 +5,11 @@ __pycache__/
 venv/
 .env
 
-data/*.db
+Google_play_store/data/*.db
 data/*.sqlite3
 
+*.pyc
+NYPD_analysis/data/export_nypd.json
 
 .vscode/
 .idea/
