@@ -1,6 +1,6 @@
 {
     "data_path": "data/nypd_data.csv",
-    "export_mode": "file",
+    "export_mode": "firebase",
     "kafka_settings": {
         "bootstrap_servers": "localhost:9092",
         "topic": "nypd_incidents"
@@ -11,5 +11,8 @@
     },
     "file_settings": {
         "output_file": "data/export_nypd.json"
+    },
+    "firebase_settings": {
+        "db_url": "https://nypd-analysis-default-rtdb.europe-west1.firebasedatabase.app/"
     }
 }

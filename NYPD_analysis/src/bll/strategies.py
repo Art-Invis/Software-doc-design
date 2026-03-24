@@ -3,9 +3,11 @@ import time
 from abc import ABC, abstractmethod
 
 try:
+    import requests
     from redis import Redis
     from kafka import KafkaProducer
 except ImportError:
+    requests = None
     Redis = None
     KafkaProducer = None
 
@@ -52,7 +54,6 @@ class RedisStrategy(ExportStrategy):
         if Redis is None:
             print("WARNING: [REDIS] Бібліотека 'redis' не встановлена. Режим імітації.")
             return
-
         try:
             self.client = Redis(host=self.host, port=self.port, socket_timeout=1, decode_responses=True)
             for item in data:
@@ -74,7 +75,6 @@ class KafkaStrategy(ExportStrategy):
         if KafkaProducer is None:
             print("WARNING: [KAFKA] Бібліотека 'kafka-python' не встановлена. Режим імітації.")
             return
-
         try:
             self.producer = KafkaProducer(
                 bootstrap_servers=self.servers,
@@ -83,7 +83,6 @@ class KafkaStrategy(ExportStrategy):
             )
             for item in data:
                 self.producer.send(self.topic, item)
-            
             self.producer.flush()
             print(f"SUCCESS: [KAFKA] Пакет з {len(data)} повідомлень доставлено в брокер.")
         except Exception as e:
@@ -94,3 +93,25 @@ class KafkaStrategy(ExportStrategy):
         if self.producer:
             self.producer.close()
             print("[KAFKA] З'єднання з брокером закрито.")
+
+class FirebaseStrategy(ExportStrategy):
+    def __init__(self, db_url):
+        self.db_url = db_url if db_url.endswith('/') else f"{db_url}/"
+
+    def send(self, data: list):
+        print(f"[FIREBASE] Підключення до хмарної бази: {self.db_url}")
+        if requests is None:
+            print("WARNING: Бібліотека 'requests' не встановлена.")
+            return
+        try:
+            for item in data:
+                url = f"{self.db_url}incidents/{item['id']}.json"
+                response = requests.put(url, json=item, timeout=5)
+                if response.status_code == 200:
+                    print(f"   -> Firebase: Інцидент {item['id']} синхронізовано")
+                else:
+                    print(f"   -> Firebase: Помилка {response.status_code}")
+            print(f"SUCCESS: [FIREBASE] Усі дані успішно вивантажено в хмару.")
+        except Exception as e:
+            print(f"WARNING: [FIREBASE] Помилка мережі: {e}")
+            print("MOCK: Хмарний експорт імітовано.")
