@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block login_content %}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white p-4 border-0">
+                <div class="d-flex align-items-center">
+                    <span class="fs-2 me-3">{{ "👨‍💻" if request.args.get('role') != 'customer' else "👤" }}</span>
+                    <div>
+                        <h2 class="mb-0 fw-bold">
+                            {{ "Реєстрація розробника" if request.args.get('role') != 'customer' else "Стати покупцем" }}
+                        </h2>
+                        <p class="mb-0 opacity-75">Заповніть дані профілю</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 bg-white">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">Електронна пошта</label>
+                        <input type="email" name="email" class="form-control bg-light border-0" 
+                               placeholder="example@mail.com" required>
+                    </div>
+
+                    {% if request.args.get('role') != 'customer' %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">Назва компанії</label>
+                            <input type="text" name="company_name" class="form-control bg-light border-0" 
+                                   placeholder="Google Inc." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">Ключ розробника (Dev Key)</label>
+                            <input type="text" name="dev_key" class="form-control bg-light border-0" 
+                                   placeholder="DEV-XXXX-XXXX">
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">Метод оплати</label>
+                            <select name="payment_method" class="form-select bg-light border-0">
+                                <option value="Credit Card">💳 Кредитна картка</option>
+                                <option value="PayPal">🅿️ PayPal</option>
+                                <option value="Google Pay">📱 Google Pay</option>
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small">Пароль</label>
+                        <input type="password" name="password" class="form-control bg-light border-0" required>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">Зареєструватися</button>
+                        <a href="/login" class="btn btn-link text-muted small">Вже є акаунт? Увійти</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

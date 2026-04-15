@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row align-items-center mb-5 mt-2">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-dark mb-1">Фінансова звітність</h2>
+        <p class="text-muted small">Огляд покупок платних додатків та статусів транзакцій</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="stats-pill shadow-sm bg-white border px-4 py-2 rounded-pill d-inline-block">
+            Загальна виручка: <span class="text-success fw-bold">$ {{ "%.2f" | format(transactions|sum(attribute='amount')) }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-borderless align-middle custom-table">
+        <thead class="text-muted small text-uppercase">
+            <tr>
+                <th class="ps-4">ID Транзакції</th>
+                <th>Покупець</th>
+                <th>Додаток</th>
+                <th>Сума</th>
+                <th>Статус</th>
+                <th class="text-end pe-4">Дата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tx in transactions %}
+            <tr class="app-card-row">
+                <td class="ps-4">
+                    <span class="app-id-tag">{{ tx.transaction_id[:8] }}...</span>
+                </td>
+                <td>
+                    <div class="fw-bold text-dark">{{ tx.customer.email.split('@')[0] }}</div>
+                    <div class="x-small text-muted">{{ tx.customer.payment_method }}</div>
+                </td>
+                <td>
+                    <div class="fw-600 text-primary">{{ tx.paid_app.title }}</div>
+                </td>
+                <td>
+                    <span class="fw-bold">${{ tx.amount }}</span>
+                </td>
+                <td>
+                    {% if tx.status == 'Completed' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                            ● {{ tx.status }}
+                        </span>
+                    {% elif tx.status == 'Pending' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">
+                            ● {{ tx.status }}
+                        </span>
+                    {% elif tx.status == 'Refunded' %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">
+                            ● {{ tx.status }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">
+                            ● {{ tx.status }}
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="text-end pe-4 text-muted small">
+                    {{ tx.date.strftime('%d.%m.%Y %H:%M') }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center py-5 bg-white rounded-4 shadow-sm">
+                    <p class="text-muted mb-0">Транзакцій ще не зафіксовано в системі.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

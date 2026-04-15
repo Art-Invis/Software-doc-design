@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-5 mt-2">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">Реєстр розробників</h2>
+        <p class="text-muted small mb-0">Керування обліковими записами та партнерськими програмами</p>
+    </div>
+    <div class="stats-pill shadow-sm bg-white border px-3 py-2 rounded-pill">
+        <span class="text-primary fw-bold">{{ developers|length }}</span> партнерів активні
+    </div>
+</div>
+
+<div class="developer-list">
+    {% for dev in developers %}
+    <div class="dev-row-card shadow-sm border-0 mb-3 bg-white d-flex align-items-center p-3">
+        <div class="dev-avatar me-4">
+            <div class="avatar-circle">
+                {{ dev.company_name[0] }}
+            </div>
+        </div>
+
+        <div class="dev-info flex-grow-1">
+            <h5 class="fw-bold mb-0 text-dark">{{ dev.company_name }}</h5>
+            <div class="d-flex gap-3 mt-1">
+                <span class="small text-muted">📧 {{ dev.email }}</span>
+                <span class="small text-muted">🔑 ID: #{{ dev.dev_key[:8] }}</span>
+            </div>
+        </div>
+
+        <div class="dev-stats px-4 text-center border-start border-end">
+            <div class="h4 fw-bold mb-0 text-primary">{{ dev.applications|length }}</div>
+            <div class="x-small text-uppercase text-muted fw-bold">Додатків</div>
+        </div>
+
+        <div class="dev-actions ps-4">
+            <a href="/developer/{{ dev.user_id }}" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold">
+                Профіль
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

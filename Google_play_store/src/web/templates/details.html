@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Головна</a></li>
+        <li class="breadcrumb-item"><a href="/apps?category_id={{ app.category_id }}">{{ app.category.name }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ app.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card details-card shadow-sm mb-4 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                    <div class="bg-primary text-white rounded-4 p-3 me-3 shadow-sm">
+                        <h2 class="mb-0 fw-bold">{{ app.title[0] }}</h2>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-dark">{{ app.title }}</h1>
+                        <p class="text-muted small mb-0">
+                            <span class="app-id-tag me-2">ID: {{ app.app_id[:12] }}...</span>
+                            <span class="badge bg-light text-dark border">Версія {{ app.current_version }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-5">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 text-center border">
+                            <div class="section-label mb-1">Рейтинг</div>
+                            <div class="h4 fw-bold text-warning mb-0">⭐ {{ app.average_rating }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 text-center border">
+                            <div class="section-label mb-1">Категорія</div>
+                            <div class="h5 fw-bold mb-0 text-dark">{{ app.category.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 text-center border text-truncate">
+                            <div class="section-label mb-1">Розробник</div>
+                            <div class="fw-bold text-dark">{{ app.developer.company_name }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-5 px-2">
+                    <span class="section-label">Про цей додаток</span>
+                    <p class="text-dark fs-5" style="line-height: 1.7; opacity: 0.85;">
+                        {{ app.description if app.description else 'Опис відсутній.' }}
+                    </p>
+                </div>
+
+                <div class="mb-2">
+                    <span class="section-label">Технічна інформація</span>
+                    <ul class="list-group list-group-flush border rounded-3 overflow-hidden">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Тип доступу</span>
+                            <span class="badge {{ 'bg-success' if app.price else 'bg-info' }} rounded-pill">
+                                {{ 'Платний' if app.price else 'Безкоштовний' }}
+                            </span>
+                        </li>
+                        {% if app.price %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Вартість</span>
+                            <span class="fw-bold fs-5 text-primary">{{ app.price }} {{ app.currency }}</span>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Реклама</span>
+                            <span>{{ 'Містить рекламні матеріали' if app.contains_ads else 'Без реклами' }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Відгуки користувачів ({{ app.reviews|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% for review in app.reviews %}
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-light p-2 text-center" style="width: 45px; height: 45px;">👤</div>
+                    </div>
+                    <div class="flex-grow-1 ms-3 border-bottom pb-3">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-0 fw-bold">{{ review.customer.email.split('@')[0] }}</h6>
+                            <small class="text-warning">{{ '★' * review.stars }}{{ '☆' * (5 - review.stars) }}</small>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">"{{ review.comment }}"</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">Відгуків ще немає.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 {{ 'bg-dark text-white' if request.args.get('role') != 'customer' else 'bg-primary text-white' }} p-3 mb-4">
+            <h5 class="fw-bold mb-3">{{ 'Управління' if request.args.get('role') != 'customer' else 'Дія' }}</h5>
+            
+            {% if request.args.get('role') == 'customer' %}
+                <form action="/app/purchase/{{ app.app_id }}?role=customer" method="POST">
+                    <button type="submit" class="btn btn-light w-100 fw-bold py-2">
+                        {{ '💳 Придбати за ' + app.price|string + ' ' + app.currency if app.price else '📥 Встановити безкоштовно' }}
+                    </button>
+                </form>
+            {% else %}
+                <a href="/app/edit/{{ app.app_id }}" class="btn btn-warning w-100 mb-2 fw-bold">📝 Редагувати</a>
+                <a href="/app/delete/{{ app.app_id }}" class="btn btn-outline-danger w-100 fw-bold">🗑️ Видалити</a>
+            {% endif %}
+            <hr>
+            <a href="/apps?role={{ request.args.get('role', 'admin') }}" class="btn btn-outline-light w-100">← Назад</a>
+        </div>
+
+        {% if request.args.get('role') == 'customer' %}
+        <div class="card shadow-sm border-0 mt-4 p-4">
+            <h5 class="fw-bold mb-3">Залишити відгук</h5>
+            <form action="/app/{{ app.app_id }}/review?role=customer" method="POST">
+                <label class="form-label">Оцінка (1-5)</label>
+                <select name="stars" class="form-select">
+                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                    <option value="4">⭐⭐⭐⭐ (4)</option>
+                    <option value="3">⭐⭐⭐ (3)</option>
+                    <option value="2">⭐⭐ (2)</option>
+                    <option value="1">⭐ (1)</option>
+                </select>
+                <textarea name="comment" class="form-control mb-2" placeholder="Ваш коментар..."></textarea>
+                <button class="btn btn-primary w-100">Опублікувати</button>
+            </form>
+        </div>
+        {% endif %}
+        
+        <div class="card shadow-sm border-0 p-3">
+            <h6 class="fw-bold">Історія версій:</h6>
+            <div class="list-group list-group-flush small">
+                {% for ver in app.versions %}
+                <div class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                        <strong>v{{ ver.version_tag }}</strong>
+                    </div>
+                    <div class="text-muted">{{ ver.release_notes }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
